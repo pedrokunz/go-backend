@@ -7,5 +7,10 @@ import (
 )
 
 func (s *Service) Update(ctx context.Context, product *entity.Product) error {
-	return nil
+	err := s.Repository.Update(ctx, product)
+	if err != nil {
+		s.Logger.Error(ctx, err.Error())
+	}
+
+	return err
 }

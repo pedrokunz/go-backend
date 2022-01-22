@@ -7,5 +7,10 @@ import (
 )
 
 func (s *Service) Delete(ctx context.Context, product *entity.Product) error {
-	return nil
+	err := s.Repository.Delete(ctx, product)
+	if err != nil {
+		s.Logger.Error(ctx, err.Error())
+	}
+
+	return err
 }

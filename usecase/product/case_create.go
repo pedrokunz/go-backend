@@ -7,5 +7,10 @@ import (
 )
 
 func (s *Service) Create(ctx context.Context, product *entity.Product) (*entity.Product, error) {
-	return nil, nil
+	err := s.Repository.Create(ctx, product)
+	if err != nil {
+		s.Logger.Error(ctx, err.Error())
+	}
+
+	return product, err
 }
