@@ -10,7 +10,8 @@ func (s *Service) Delete(ctx context.Context, product *entity.Product) error {
 	err := s.Repository.Delete(ctx, product)
 	if err != nil {
 		s.Logger.Error(ctx, err.Error())
+		return ErrProductDeleteError
 	}
 
-	return err
+	return nil
 }

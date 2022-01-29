@@ -11,9 +11,8 @@ func main() {
 
 	productRepositoryMock := product.Mock{}
 
-	productService := productUseCase.NewService(&productRepositoryMock, &loggerMock)
-
-	if productService == nil {
-		panic("productService is nil")
+	productService, err := productUseCase.NewService(&productRepositoryMock, &loggerMock)
+	if err != nil || productService == nil {
+		panic("unable to create product service")
 	}
 }

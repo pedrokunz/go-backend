@@ -10,7 +10,8 @@ func (s *Service) Create(ctx context.Context, product *entity.Product) (*entity.
 	err := s.Repository.Create(ctx, product)
 	if err != nil {
 		s.Logger.Error(ctx, err.Error())
+		return nil, ErrProductCreateError
 	}
 
-	return product, err
+	return product, nil
 }

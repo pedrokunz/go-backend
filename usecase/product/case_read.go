@@ -10,7 +10,8 @@ func (s *Service) Read(ctx context.Context, params map[string]string) ([]*entity
 	products, err := s.Repository.Read(ctx, params)
 	if err != nil {
 		s.Logger.Error(ctx, err.Error())
+		return nil, ErrProductListError
 	}
 
-	return products, err
+	return products, nil
 }
