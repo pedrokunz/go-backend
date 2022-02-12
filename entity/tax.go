@@ -1,5 +1,10 @@
 package entity
 
+import (
+	"github.com/pedrokunz/go_backend/usecase/contract"
+	"math"
+)
+
 type originDestinationKey struct {
 	Origin      string
 	Destination string
@@ -22,20 +27,41 @@ var (
 		{"011", "018"}: 0.90,
 		{"018", "011"}: 1.90,
 	}
+
+	ErrInvalidOriginOrDestination TaxError = "invalid origin or destination"
 )
 
 type taxCalculator struct{}
 
 func (c *taxCalculator) Calculate(origin, destination, plan string, duration float64) (withPlan float64, withoutPlan float64, err error) {
-	if plans[plan] >= duration {
-		withPlan = 0
+	planLimit := plans[plan]
+	minuteByOriginAndDestinationValue := originDestinationMinuteValues[originDestinationKey{origin, destination}]
+	if minuteByOriginAndDestinationValue == 0 {
+		return 0, 0, ErrInvalidOriginOrDestination
 	}
 
-	withoutPlan = originDestinationMinuteValues[originDestinationKey{origin, destination}] * duration
+	if duration < planLimit {
+		withPlan = 0
+	} else {
+		exceededMinutes := duration - planLimit
+		exceedingMinuteValue := minuteByOriginAndDestinationValue * 1.1
+		withPlan = toFixed(exceededMinutes*exceedingMinuteValue, 2)
+	}
+
+	withoutPlan = toFixed(minuteByOriginAndDestinationValue*duration, 2)
 
 	return withPlan, withoutPlan, nil
 }
 
-func NewTaxCalculator() *taxCalculator {
+func NewTaxCalculator() contract.PhoneCallTaxCalculator {
 	return &taxCalculator{}
+}
+
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num*output)) / output
 }
