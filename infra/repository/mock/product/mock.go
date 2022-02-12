@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/pedrokunz/go_backend/entity"
 	"github.com/pedrokunz/go_backend/usecase/product"
@@ -26,12 +27,23 @@ func New() product.Repository {
 
 func (mock *Mock) Setup() {
 	mock.onCreate = func(_ context.Context, product *entity.Product) error {
+		product.ID = uint(len(mock.products) + 1)
 		mock.products = append(mock.products, product)
 		return nil
 	}
 
-	mock.onRead = func(_ context.Context, _ map[string]string) ([]*entity.Product, error) {
-		return mock.products, nil
+	mock.onRead = func(_ context.Context, params map[string]string) ([]*entity.Product, error) {
+		products := make([]*entity.Product, 0)
+
+		for _, product := range mock.products {
+			if product.Name == params["name"] {
+				products = append(products, product)
+			} else if strconv.FormatUint(uint64(product.ID), 10) == (params["id"]) {
+				products = append(products, product)
+			}
+		}
+
+		return products, nil
 	}
 
 	mock.onUpdate = func(_ context.Context, product *entity.Product) error {
@@ -48,6 +60,7 @@ func (mock *Mock) Setup() {
 		for i, p := range mock.products {
 			if p.ID == product.ID {
 				mock.products = append(mock.products[:i], mock.products[i+1:]...)
+				break
 			}
 		}
 
