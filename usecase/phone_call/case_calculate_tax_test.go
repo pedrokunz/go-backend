@@ -3,12 +3,19 @@ package phone_call_test
 import (
 	"testing"
 
-	"github.com/pedrokunz/go_backend/entity"
+	"github.com/pedrokunz/go_backend/entity/tax"
+	repositoryTaxMock "github.com/pedrokunz/go_backend/infra/repository/mock/tax"
 	"github.com/pedrokunz/go_backend/usecase/phone_call"
 )
 
 func TestSuccess(t *testing.T) {
-	usecase := phone_call.NewCalculateTax(entity.NewTaxCalculator())
+	calculatorRepositoryMock := repositoryTaxMock.New()
+	calculator, err := tax.NewTaxCalculator(calculatorRepositoryMock)
+	if err != nil {
+		t.Fatalf("Error creating tax calculator: %s", err)
+	}
+
+	usecase := phone_call.NewCalculateTax(calculator)
 
 	t.Run("plan FaleMais30 during 20 minutes", func(t *testing.T) {
 		input := &phone_call.CalculateTaxInput{

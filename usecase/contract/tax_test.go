@@ -2,9 +2,10 @@ package contract_test
 
 import (
 	"fmt"
+	"github.com/pedrokunz/go_backend/entity/tax"
+	repositoryTaxMock "github.com/pedrokunz/go_backend/infra/repository/mock/tax"
+	"github.com/stretchr/testify/assert"
 	"testing"
-
-	"github.com/pedrokunz/go_backend/entity"
 )
 
 func TestTaxCalculator(t *testing.T) {
@@ -20,7 +21,7 @@ func TestTaxCalculator(t *testing.T) {
 		wantWithPlan    float64
 		wantWithoutPlan float64
 		wantErr         bool
-		taxError        entity.TaxError
+		taxError        tax.Error
 	}{
 		{
 			args:            args{origin: "011", destination: "016", plan: "FaleMais30", duration: 20},
@@ -45,14 +46,26 @@ func TestTaxCalculator(t *testing.T) {
 			wantWithPlan:    0.0,
 			wantWithoutPlan: 0.0,
 			wantErr:         true,
-			taxError:        entity.ErrInvalidOriginOrDestination,
+			taxError:        tax.ErrInvalidOriginOrDestination,
+		},
+		{
+			args:            args{plan: "invalid plan"},
+			wantWithPlan:    0.0,
+			wantWithoutPlan: 0.0,
+			wantErr:         true,
+			taxError:        tax.ErrPlanNotFound,
 		},
 	}
 
 	for _, tt := range tests {
 		tt.name = fmt.Sprintf("Test origin %s destination %s plan %s duration %f", tt.args.origin, tt.args.destination, tt.args.plan, tt.args.duration)
 		t.Run(tt.name, func(t *testing.T) {
-			c := entity.NewTaxCalculator()
+			calculatorRepositoryMock := repositoryTaxMock.New()
+			c, err := tax.NewTaxCalculator(calculatorRepositoryMock)
+			if err != nil {
+				t.Fatalf("Error creating tax calculator: %s", err.Error())
+			}
+
 			gotWithPlan, gotWithoutPlan, err := c.Calculate(tt.args.origin, tt.args.destination, tt.args.plan, tt.args.duration)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Calculate() error = %v, wantErr %v", err, tt.wantErr)
@@ -71,4 +84,11 @@ func TestTaxCalculator(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("Test invalid repository", func(t *testing.T) {
+		taxCalculator, err := tax.NewTaxCalculator(nil)
+		assert.Nil(t, taxCalculator, "Tax calculator should be nil")
+		assert.Error(t, err, "Error should be returned")
+		assert.EqualError(t, err, tax.ErrInvalidRepository.Error(), "expected error %s, got %s", tax.ErrInvalidRepository.Error(), err.Error())
+	})
 }
