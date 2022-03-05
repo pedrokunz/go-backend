@@ -1,4 +1,4 @@
-package phone_call
+package repository
 
 type CalculatorRepository interface {
 	GetPlanLimitByName(name string) (float64, error)

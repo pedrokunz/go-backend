@@ -2,7 +2,7 @@ package tax
 
 import (
 	"errors"
-	"github.com/pedrokunz/go_backend/usecase/phone_call"
+	"github.com/pedrokunz/go_backend/usecase/repository"
 )
 
 type originDestinationKey struct {
@@ -15,7 +15,7 @@ type Mock struct {
 	originDestinationMinuteValues map[originDestinationKey]float64
 }
 
-func New() phone_call.CalculatorRepository {
+func New() repository.CalculatorRepository {
 	return &Mock{
 		plans: map[string]float64{
 			"FaleMais30":  30.0,

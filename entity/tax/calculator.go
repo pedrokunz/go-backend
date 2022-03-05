@@ -1,25 +1,22 @@
 package tax
 
 import (
-	"github.com/pedrokunz/go_backend/usecase/contract"
-	"github.com/pedrokunz/go_backend/usecase/phone_call"
+	"github.com/pedrokunz/go_backend/usecase/repository"
 	"math"
 )
 
-type calculator struct {
-	repository phone_call.CalculatorRepository
+type Calculator struct {
+	repository repository.CalculatorRepository
 }
 
-func (c *calculator) Calculate(origin, destination, plan string, duration float64) (withPlan float64, withoutPlan float64, err error) {
+func (c *Calculator) Calculate(origin, destination, plan string, duration float64) (withPlan float64, withoutPlan float64, err error) {
 	planLimit, err := c.repository.GetPlanLimitByName(plan)
 	if err != nil {
-		//TODO log error
 		return 0, 0, ErrPlanNotFound
 	}
 
 	minuteValue, err := c.repository.GetMinuteValueByOriginAndDestination(origin, destination)
 	if minuteValue == 0 || err != nil {
-		//TODO log error
 		return 0, 0, ErrInvalidOriginOrDestination
 	}
 
@@ -36,12 +33,12 @@ func (c *calculator) Calculate(origin, destination, plan string, duration float6
 	return withPlan, withoutPlan, nil
 }
 
-func NewTaxCalculator(repository phone_call.CalculatorRepository) (contract.PhoneCallTaxCalculator, error) {
+func NewTaxCalculator(repository repository.CalculatorRepository) (*Calculator, error) {
 	if repository == nil {
 		return nil, ErrInvalidRepository
 	}
 
-	return &calculator{
+	return &Calculator{
 		repository: repository,
 	}, nil
 }

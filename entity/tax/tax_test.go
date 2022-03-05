@@ -1,4 +1,4 @@
-package contract_test
+package tax_test
 
 import (
 	"fmt"
