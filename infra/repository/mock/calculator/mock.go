@@ -1,4 +1,4 @@
-package tax
+package calculator
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ type Mock struct {
 	originDestinationMinuteValues map[originDestinationKey]float64
 }
 
-func New() repository.CalculatorRepository {
+func New() repository.Calculator {
 	return &Mock{
 		plans: map[string]float64{
 			"FaleMais30":  30.0,

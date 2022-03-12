@@ -3,7 +3,7 @@ package tax_test
 import (
 	"fmt"
 	"github.com/pedrokunz/go_backend/entity/tax"
-	repositoryTaxMock "github.com/pedrokunz/go_backend/infra/repository/mock/tax"
+	repositoryTaxMock "github.com/pedrokunz/go_backend/infra/repository/mock/calculator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

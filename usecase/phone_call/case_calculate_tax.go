@@ -21,7 +21,7 @@ type usecaseCalculateTax struct {
 	taxCalculator *tax.Calculator
 }
 
-func NewCalculateTax(repo repository.CalculatorRepository) (*usecaseCalculateTax, error) {
+func NewCalculateTax(repo repository.Calculator) (*usecaseCalculateTax, error) {
 	taxCalculator, err := tax.NewTaxCalculator(repo)
 	if err != nil {
 		return nil, err

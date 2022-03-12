@@ -6,7 +6,7 @@ import (
 )
 
 type Calculator struct {
-	repository repository.CalculatorRepository
+	repository repository.Calculator
 }
 
 func (c *Calculator) Calculate(origin, destination, plan string, duration float64) (withPlan float64, withoutPlan float64, err error) {
@@ -33,7 +33,7 @@ func (c *Calculator) Calculate(origin, destination, plan string, duration float6
 	return withPlan, withoutPlan, nil
 }
 
-func NewTaxCalculator(repository repository.CalculatorRepository) (*Calculator, error) {
+func NewTaxCalculator(repository repository.Calculator) (*Calculator, error) {
 	if repository == nil {
 		return nil, ErrInvalidRepository
 	}

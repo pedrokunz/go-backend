@@ -3,7 +3,7 @@ package phone_call_test
 import (
 	"testing"
 
-	repositoryTaxMock "github.com/pedrokunz/go_backend/infra/repository/mock/tax"
+	repositoryTaxMock "github.com/pedrokunz/go_backend/infra/repository/mock/calculator"
 	"github.com/pedrokunz/go_backend/usecase/phone_call"
 )
 
