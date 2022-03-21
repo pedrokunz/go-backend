@@ -9,44 +9,23 @@ import (
 )
 
 type usecaseCreateBooking struct {
-	tableRepository   repository.Table
 	bookingRepository repository.Booking
 }
 
 type CreateBookingInput struct {
-	Username     string
-	CustomerName string
-	BookingDate  string
-	TableID      int
+	Username     string `json:"username"`
+	CustomerName string `json:"customer_name"`
+	BookingDate  string `json:"booking_date"`
+	TableID      int    `json:"table_id"`
 }
 
-func NewCreate(
-	tableRepository repository.Table,
-	bookingRepository repository.Booking) *usecaseCreateBooking {
+func NewCreateBooking(bookingRepository repository.Booking) *usecaseCreateBooking {
 	return &usecaseCreateBooking{
-		tableRepository:   tableRepository,
 		bookingRepository: bookingRepository,
 	}
 }
 
 func (u *usecaseCreateBooking) Perform(input CreateBookingInput) error {
-	tables, err := u.tableRepository.GetAvailableTables()
-	if err != nil {
-		return err
-	}
-
-	isAvailable := false
-	for _, table := range tables {
-		if table.ID == input.TableID {
-			isAvailable = true
-			break
-		}
-	}
-
-	if !isAvailable {
-		return errors.New("table not available")
-	}
-
 	bookingDate, err := time.Parse(time.RFC3339, input.BookingDate)
 	if err != nil {
 		return errors.New("invalid date")
@@ -54,6 +33,28 @@ func (u *usecaseCreateBooking) Perform(input CreateBookingInput) error {
 
 	if bookingDate.Before(time.Now()) {
 		return errors.New("can't create a booking at a past date")
+	}
+
+	bookings, err := u.bookingRepository.GetBookingsByDay(bookingDate)
+	if err != nil {
+		return err
+	}
+
+	isAvailable := false
+	if len(bookings) == 0 {
+		isAvailable = true
+	}
+
+	for _, booking := range bookings {
+		if booking.TableID == input.TableID &&
+			bookingDate.After(booking.Date.Add(2*time.Hour)) {
+			isAvailable = true
+			break
+		}
+	}
+
+	if !isAvailable {
+		return errors.New("table not available for booking")
 	}
 
 	bookingTime := fmt.Sprintf("%d:%d", bookingDate.Hour(), bookingDate.Minute())
