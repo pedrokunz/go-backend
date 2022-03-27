@@ -1,0 +1,104 @@
+version: '3'
+services:
+  app:
+    build: 
+      context: .
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    volumes:
+      - ./:/usr/src/app
+    depends_on:
+      - mongo
+    networks:
+      - backend
+    
+  mongo:
+    image: pedrokunz/mongo-enterprise:5.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    volumes:
+      - mongo:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "\"printjson(db.runCommand({ping: 1}))\""]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+  
+  mongo-express:    
+    image: mongo-express
+    environment:
+      - ME_CONFIG_BASICAUTH_USERNAME=${ME_CONFIG_BASICAUTH_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${ME_CONFIG_BASICAUTH_PASSWORD}
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    volumes:
+      - mongo 
+    depends_on:
+      - mongo
+      - app
+    networks:
+      - backend
+    healthcheck:
+      test:  wget --quiet --tries=3 --spider http://$ME_CONFIG_MONGODB_ADMINUSERNAME:$ME_CONFIG_MONGODB_ADMINPASSWORD@localhost:8081 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "psql", "-U", "$POSTGRES_USER", "-d", "$POSTGRES_DB", "-c", "SELECT 1"]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "$POSTGRES_USER", "-d", "$POSTGRES_DB"]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+
+volumes:
+  app:
+  mongo:
+  mongo-express:
+  postgres:
+  pgadmin:
+
+networks:
+  backend:
+      driver: bridge
