@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/pedrokunz/go_backend/infra/repository/mock/booking"
+	bookingMock "github.com/pedrokunz/go_backend/infra/repository/mock/booking"
 	"github.com/pedrokunz/go_backend/usecase/restaurant"
 	"io/ioutil"
 	"net/http"
@@ -13,7 +13,7 @@ import (
 func NewHandler() {
 	h := gin.Default()
 
-	createBooking := restaurant.NewCreateBooking(booking.New())
+	createBooking := restaurant.NewCreateBooking(bookingMock.New())
 
 	h.POST("/booking", func(c *gin.Context) {
 		body, err := ioutil.ReadAll(c.Request.Body)
@@ -33,7 +33,7 @@ func NewHandler() {
 			return
 		}
 
-		err = createBooking.Perform(createBookingInput)
+		err = createBooking.Perform(c, createBookingInput)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),

@@ -1,8 +1,10 @@
 package booking
 
 import (
-	"github.com/pedrokunz/go_backend/entity/restaurant"
+	"context"
 	"time"
+
+	"github.com/pedrokunz/go_backend/entity/restaurant"
 )
 
 type Mock struct {
@@ -15,12 +17,12 @@ func New() *Mock {
 	}
 }
 
-func (m *Mock) Create(booking *restaurant.Booking) error {
+func (m *Mock) Create(ctx context.Context, booking *restaurant.Booking) error {
 	m.bookings = append(m.bookings, booking)
 	return nil
 }
 
-func (m *Mock) GetBookingsByDay(bookingDate time.Time) ([]*restaurant.Booking, error) {
+func (m *Mock) GetBookingsByDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
 	results := make([]*restaurant.Booking, 0)
 	for i, booking := range m.bookings {
 		if booking.Date.Year() == bookingDate.Year() &&

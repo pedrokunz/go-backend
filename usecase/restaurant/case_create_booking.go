@@ -1,11 +1,13 @@
 package restaurant
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/pedrokunz/go_backend/entity/restaurant"
 	"github.com/pedrokunz/go_backend/usecase/repository"
-	"time"
 )
 
 type usecaseCreateBooking struct {
@@ -25,7 +27,7 @@ func NewCreateBooking(bookingRepository repository.Booking) *usecaseCreateBookin
 	}
 }
 
-func (u *usecaseCreateBooking) Perform(input CreateBookingInput) error {
+func (u *usecaseCreateBooking) Perform(ctx context.Context, input CreateBookingInput) error {
 	bookingDate, err := time.Parse(time.RFC3339, input.BookingDate)
 	if err != nil {
 		return errors.New("invalid date")
@@ -35,7 +37,7 @@ func (u *usecaseCreateBooking) Perform(input CreateBookingInput) error {
 		return errors.New("can't create a booking at a past date")
 	}
 
-	bookings, err := u.bookingRepository.GetBookingsByDay(bookingDate)
+	bookings, err := u.bookingRepository.GetBookingsByDay(ctx, bookingDate)
 	if err != nil {
 		return err
 	}
@@ -81,7 +83,7 @@ func (u *usecaseCreateBooking) Perform(input CreateBookingInput) error {
 		return errors.New("not booking datetime")
 	}
 
-	err = u.bookingRepository.Create(&restaurant.Booking{
+	err = u.bookingRepository.Create(ctx, &restaurant.Booking{
 		Username:     input.Username,
 		CustomerName: input.CustomerName,
 		Date:         bookingDate,

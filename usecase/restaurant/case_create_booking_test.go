@@ -1,11 +1,13 @@
 package restaurant_test
 
 import (
+	"context"
+	"testing"
+	"time"
+
 	bookingMockRepository "github.com/pedrokunz/go_backend/infra/repository/mock/booking"
 	"github.com/pedrokunz/go_backend/usecase/restaurant"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestCreateBooking(t *testing.T) {
@@ -57,11 +59,11 @@ func TestCreateBooking(t *testing.T) {
 	}
 
 	bookingMock := bookingMockRepository.New()
-
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := restaurant.NewCreateBooking(bookingMock)
-			err := u.Perform(tt.args.input)
+			err := u.Perform(ctx, tt.args.input)
 			if err != nil {
 				assert.EqualError(t, err, tt.expectedErr, "expected: %s, got: %s", tt.expectedErr, err.Error())
 			}
