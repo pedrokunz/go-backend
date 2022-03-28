@@ -25,11 +25,6 @@ services:
       - mongo:/data/db
     networks:
       - backend
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "\"printjson(db.runCommand({ping: 1}))\""]
-      interval: 5s
-      timeout: 1s
-      retries: 3
   
   mongo-express:    
     image: mongo-express
@@ -50,11 +45,6 @@ services:
       - app
     networks:
       - backend
-    healthcheck:
-      test:  wget --quiet --tries=3 --spider http://$ME_CONFIG_MONGODB_ADMINUSERNAME:$ME_CONFIG_MONGODB_ADMINPASSWORD@localhost:8081 || exit 1
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   postgres:
     image: postgres
@@ -68,11 +58,6 @@ services:
       - postgres:/var/lib/postgresql/data
     networks:
       - backend
-    healthcheck:
-      test: ["CMD", "psql", "-U", "$POSTGRES_USER", "-d", "$POSTGRES_DB", "-c", "SELECT 1"]
-      interval: 5s
-      timeout: 1s
-      retries: 3
   
   pgadmin:
     image: dpage/pgadmin4
