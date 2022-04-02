@@ -3,6 +3,8 @@ services:
   app:
     build: 
       context: .
+    environment:
+      - MONGO_URI=${MONGO_URI}
     ports:
       - "8080:8080"
     restart: on-failure
@@ -39,7 +41,7 @@ services:
       - "8081:8081"
     restart: unless-stopped
     volumes:
-      - mongo 
+      - mongo:/data/db 
     depends_on:
       - mongo
       - app
@@ -71,11 +73,6 @@ services:
       - pgadmin:/var/lib/pgadmin
     networks:
       - backend
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "$POSTGRES_USER", "-d", "$POSTGRES_DB"]
-      interval: 5s
-      timeout: 1s
-      retries: 3
 
 volumes:
   app:
