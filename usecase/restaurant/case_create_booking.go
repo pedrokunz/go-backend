@@ -42,45 +42,16 @@ func (u *usecaseCreateBooking) Perform(ctx context.Context, input CreateBookingI
 		return err
 	}
 
-	isAvailable := false
-	if len(bookings) == 0 {
-		isAvailable = true
-	}
-
-	for _, booking := range bookings {
-		if booking.TableID == input.TableID &&
-			bookingDate.After(booking.Date.Add(2*time.Hour)) {
-			isAvailable = true
-			break
-		}
-	}
-
+	isAvailable := restaurant.Bookings(bookings).IsAvailable(input.TableID, bookingDate)
 	if !isAvailable {
 		return errors.New("table not available for booking")
 	}
 
 	bookingTime := fmt.Sprintf("%d:%d", bookingDate.Hour(), bookingDate.Minute())
 
-	isWorkingHour := false
-	switch bookingDate.Weekday() {
-	case time.Monday, time.Tuesday, time.Wednesday:
-		isWorkingHour = bookingTime >= "11:00" && bookingTime <= "15:00"
-	case time.Thursday, time.Friday, time.Saturday, time.Sunday:
-		isWorkingHour = bookingTime >= "11:00" && bookingTime <= "22:00"
-	}
-
-	if !isWorkingHour {
-		return errors.New("not working datetime")
-	}
-
-	isBookingHour := false
-	switch bookingDate.Weekday() {
-	case time.Thursday, time.Friday, time.Saturday, time.Sunday:
-		isBookingHour = bookingTime >= "11:00" && bookingTime <= "20:00"
-	}
-
-	if !isBookingHour {
-		return errors.New("not booking datetime")
+	err = u.checkHourAvailability(bookingDate, bookingTime)
+	if err != nil {
+		return err
 	}
 
 	err = u.bookingRepository.Create(ctx, &restaurant.Booking{
@@ -89,8 +60,36 @@ func (u *usecaseCreateBooking) Perform(ctx context.Context, input CreateBookingI
 		Date:         bookingDate,
 		TableID:      input.TableID,
 	})
+	
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (u *usecaseCreateBooking) checkHourAvailability(bookingDate time.Time, bookingTime string) error {
+	isBookingHour := false
+	isWorkingHour := false
+	beginShiftTime := "11:00"
+	endShiftTime1 := "15:00"
+	endShiftTime2 := "22:00"
+	endBookingTime := "20:00"
+
+	switch bookingDate.Weekday() {
+	case time.Monday, time.Tuesday, time.Wednesday:
+		isWorkingHour = bookingTime >= beginShiftTime && bookingTime <= endShiftTime1
+	case time.Thursday, time.Friday, time.Saturday, time.Sunday:
+		isWorkingHour = bookingTime >= beginShiftTime && bookingTime <= endShiftTime2
+		isBookingHour = bookingTime >= beginShiftTime && bookingTime <= endBookingTime
+	}
+
+	if !isWorkingHour {
+		return errors.New("not working datetime")
+	}
+
+	if !isBookingHour {
+		return errors.New("not booking datetime")
 	}
 
 	return nil
