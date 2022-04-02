@@ -32,7 +32,6 @@ func New() (*db, error) {
 }
 
 type booking struct {
-	ID           string    `bson:"_id"`
 	Username     string    `bson:"username"`
 	CustomerName string    `bson:"customer_name"`
 	Date         time.Time `bson:"date"`

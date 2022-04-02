@@ -56,6 +56,17 @@ func TestCreateBooking(t *testing.T) {
 			},
 		},
 		{
+			name: "SUCCESS - Case booking is for other table",
+			args: args{
+				input: restaurant.CreateBookingInput{
+					Username:     "user_test",
+					BookingDate:  saturdayAfternoon.Format(time.RFC3339),
+					CustomerName: "customer_test",
+					TableID:      2,
+				},
+			},
+		},
+		{
 			name: "ERROR - Case booking is out of working hours",
 			args: args{
 				input: restaurant.CreateBookingInput{
