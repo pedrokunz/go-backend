@@ -2,8 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	bookingMock "github.com/pedrokunz/go_backend/infra/repository/mock/booking"
-	"github.com/pedrokunz/go_backend/usecase/restaurant"
+	// bookingMock "github.com/pedrokunz/go_backend/infra/repository/mock/booking"
+	bookingMongo "github.com/pedrokunz/go_backend/infra/repository/mongo/create_booking"
+	restaurantUseCase "github.com/pedrokunz/go_backend/usecase/restaurant"
 	"io/ioutil"
 	"net/http"
 
@@ -13,7 +14,13 @@ import (
 func NewHandler() {
 	h := gin.Default()
 
-	createBooking := restaurant.NewCreateBooking(bookingMock.New())
+	// mockRepo := bookingMock.New()
+	mongoRepo, err := bookingMongo.New()
+	if err != nil {
+		panic(err)
+	}
+
+	createBooking := restaurantUseCase.NewCreateBooking(mongoRepo)
 
 	h.POST("/booking", func(c *gin.Context) {
 		body, err := ioutil.ReadAll(c.Request.Body)
@@ -24,7 +31,7 @@ func NewHandler() {
 			return
 		}
 
-		createBookingInput := restaurant.CreateBookingInput{}
+		createBookingInput := restaurantUseCase.CreateBookingInput{}
 		err = json.Unmarshal(body, &createBookingInput)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
