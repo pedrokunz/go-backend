@@ -51,6 +51,15 @@ func Test_db_Create(t *testing.T) {
 		})
 	}
 
+	bookings, err := mongo.GetBookingsByDay(ctx, time.Now())
+	if err != nil {
+		t.Errorf("db.GetBookingsByDay() error = %v", err)
+	} else {
+		if len(bookings) != 1 {
+			t.Errorf("db.GetBookingsByDay() = %v, want %v", len(bookings), 1)
+		}
+	}
+
 	// delete all bookings
 	mongo.client.Database(mongo.database).Collection(mongo.collection).DeleteMany(ctx, bson.D{})
 }
