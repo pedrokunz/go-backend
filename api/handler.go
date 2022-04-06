@@ -2,11 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	// bookingMock "github.com/pedrokunz/go_backend/infra/repository/mock/booking"
-	bookingMongo "github.com/pedrokunz/go_backend/infra/repository/mongo/create_booking"
-	restaurantUseCase "github.com/pedrokunz/go_backend/usecase/restaurant"
+	"os"
 	"io/ioutil"
 	"net/http"
+
+	bookingMongo "github.com/pedrokunz/go_backend/infra/repository/mongo/create_booking"
+	restaurantUseCase "github.com/pedrokunz/go_backend/usecase/restaurant"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,5 +54,5 @@ func NewHandler() {
 		})
 	})
 
-	h.Run()
+	h.Run(":" + os.Getenv("HTTP_PORT"))
 }

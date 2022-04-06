@@ -6,7 +6,7 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
     ports:
-      - "8080:8080"
+      - ${HTTP_PORT}:${HTTP_PORT}
     restart: on-failure
     volumes:
       - ./:/usr/src/app
