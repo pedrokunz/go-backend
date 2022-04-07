@@ -11,7 +11,7 @@ import (
 )
 
 type usecaseCreateBooking struct {
-	bookingRepository repository.Booking
+	bookingRepository repository.CreateBooking
 }
 
 type CreateBookingInput struct {
@@ -21,7 +21,7 @@ type CreateBookingInput struct {
 	TableID      int    `json:"table_id"`
 }
 
-func NewCreateBooking(bookingRepository repository.Booking) *usecaseCreateBooking {
+func NewCreateBooking(bookingRepository repository.CreateBooking) *usecaseCreateBooking {
 	return &usecaseCreateBooking{
 		bookingRepository: bookingRepository,
 	}
