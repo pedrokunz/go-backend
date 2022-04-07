@@ -5,6 +5,7 @@ services:
       context: .
     environment:
       - MONGO_URI=${MONGO_URI}
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES}
     ports:
       - ${HTTP_PORT}:${HTTP_PORT}
     restart: on-failure
