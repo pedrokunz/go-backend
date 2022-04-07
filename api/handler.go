@@ -1,58 +1,34 @@
 package api
 
 import (
-	"encoding/json"
 	"os"
-	"io/ioutil"
-	"net/http"
-
-	bookingMongo "github.com/pedrokunz/go_backend/infra/repository/mongo/create_booking"
-	restaurantUseCase "github.com/pedrokunz/go_backend/usecase/restaurant"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pedrokunz/go_backend/api/internal/restaurant"
 )
 
-func NewHandler() {
-	h := gin.Default()
+func ListenAndServe() {
+	h := initGinEngine()
 
-	// mockRepo := bookingMock.New()
-	mongoRepo, err := bookingMongo.New()
-	if err != nil {
-		panic(err)
-	}
+	r := h.Group("/api/v1/restaurant")
 
-	createBooking := restaurantUseCase.NewCreateBooking(mongoRepo)
-
-	h.POST("/booking", func(c *gin.Context) {
-		body, err := ioutil.ReadAll(c.Request.Body)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		createBookingInput := restaurantUseCase.CreateBookingInput{}
-		err = json.Unmarshal(body, &createBookingInput)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		err = createBooking.Perform(c, createBookingInput)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		c.JSON(200, gin.H{
-			"message": "booking created",
-		})
-	})
+	restaurant.HandleCreateBooking(r)
+	restaurant.HandleListBooking(r)
 
 	h.Run(":" + os.Getenv("HTTP_PORT"))
+}
+
+func initGinEngine() *gin.Engine {
+	h := gin.Default()
+
+	trustedProxiesEnv := os.Getenv("TRUSTED_PROXIES")
+	trustedProxies := []string{"localhost"}
+	if trustedProxiesEnv != "" {
+		trustedProxies = append(trustedProxies, strings.Split(trustedProxiesEnv, ",")...)
+	}
+
+	h.SetTrustedProxies(trustedProxies)
+
+	return h
 }

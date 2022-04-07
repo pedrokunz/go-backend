@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	api.NewHandler()
+	api.ListenAndServe()
 }
