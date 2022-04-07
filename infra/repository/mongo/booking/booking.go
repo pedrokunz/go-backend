@@ -1,4 +1,4 @@
-package create_booking
+package booking
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pedrokunz/go_backend/entity/restaurant"
+	"github.com/pedrokunz/go_backend/helper"
 	"github.com/pedrokunz/go_backend/infra/repository/mongo/internal"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -67,17 +68,16 @@ func (d *db) Create(ctx context.Context, booking *restaurant.Booking) error {
 }
 
 func (d *db) GetBookingsByDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
-	today, err := time.Parse("2006-01-02", bookingDate.Format("2006-01-02"))
-	if err != nil {
-		return nil, err
-	}
-	
+	todayFirstMoment := helper.RemoveTimeFromDate(bookingDate)
+	todayLastMoment := helper.SetDateToLastMomentOfTheDay(bookingDate)
+
 	result, err := d.client.
 		Database(d.database).
 		Collection(d.collection).
 		Find(ctx, bson.M{
 			"date": bson.M{
-				"$gte": primitive.NewDateTimeFromTime(today),
+				"$gte": primitive.NewDateTimeFromTime(todayFirstMoment),
+				"$lte": primitive.NewDateTimeFromTime(todayLastMoment),
 			},
 		})
 	if err != nil {

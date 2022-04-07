@@ -1,4 +1,4 @@
-package create_booking
+package booking
 
 import (
 	"context"
