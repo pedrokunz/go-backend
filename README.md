@@ -13,6 +13,7 @@ Creating go-backend_mongo-express_1 ... done
 ```
 
 Then attach Visual Studio Code to `go-backend_app_1` through docker extension.
+![image](https://user-images.githubusercontent.com/13998339/162106400-a914fd8b-e18d-4aa4-ab2b-e5d76d82d50d.png)
 
 To debug change the `HTTP_PORT` to another port inside the remote session.
 
