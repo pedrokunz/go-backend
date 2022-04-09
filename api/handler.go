@@ -6,15 +6,21 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pedrokunz/go_backend/api/internal/restaurant"
+	"github.com/pedrokunz/go_backend/usecase/repository"
 )
 
-func ListenAndServe() {
+type ApiDependencies struct {
+	ListBookingRepo   repository.ListBooking
+	CreateBookingRepo repository.CreateBooking
+}
+
+func ListenAndServe(dependencies ApiDependencies) {
 	h := initGinEngine()
 
 	r := h.Group("/api/v1/restaurant")
 
-	restaurant.HandleCreateBooking(r)
-	restaurant.HandleListBooking(r)
+	restaurant.HandleCreateBooking(r, dependencies.CreateBookingRepo)
+	restaurant.HandleListBooking(r, dependencies.ListBookingRepo)
 
 	h.Run(":" + os.Getenv("HTTP_PORT"))
 }
