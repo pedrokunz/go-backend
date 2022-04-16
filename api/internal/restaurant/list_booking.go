@@ -4,17 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	bookingMongo "github.com/pedrokunz/go_backend/infra/repository/mongo/booking"
+	"github.com/pedrokunz/go_backend/usecase/repository"
 	restaurantUseCase "github.com/pedrokunz/go_backend/usecase/restaurant"
 )
 
-func HandleListBooking(r *gin.RouterGroup) {
-	mongoRepo, err := bookingMongo.New()
-	if err != nil {
-		panic(err)
-	}
-
-	listBooking := restaurantUseCase.NewListBooking(mongoRepo)
+func HandleListBooking(r *gin.RouterGroup, repo repository.ListBooking) {
+	listBooking := restaurantUseCase.NewListBooking(repo)
 	r.GET("/booking", func(c *gin.Context) {
 		listBookingInput := restaurantUseCase.ListBookingInput{
 			Date: c.Query("date"),

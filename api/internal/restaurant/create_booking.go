@@ -6,17 +6,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	bookingMongo "github.com/pedrokunz/go_backend/infra/repository/mongo/booking"
+	"github.com/pedrokunz/go_backend/usecase/repository"
 	restaurantUseCase "github.com/pedrokunz/go_backend/usecase/restaurant"
 )
 
-func HandleCreateBooking(r *gin.RouterGroup) {
-	mongoRepo, err := bookingMongo.New()
-	if err != nil {
-		panic(err)
-	}
-
-	createBooking := restaurantUseCase.NewCreateBooking(mongoRepo)
+func HandleCreateBooking(r *gin.RouterGroup, repo repository.CreateBooking) {
+	createBooking := restaurantUseCase.NewCreateBooking(repo)
 
 	r.POST("/booking", func(c *gin.Context) {
 		body, err := ioutil.ReadAll(c.Request.Body)
