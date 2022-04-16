@@ -42,7 +42,7 @@ func (u *usecaseCreateBooking) Perform(ctx context.Context, input CreateBookingI
 		return err
 	}
 
-	isAvailable := restaurant.Bookings(bookings).IsAvailable(input.TableID, bookingDate)
+	isAvailable := restaurant.BookingIsAvailable(bookings, input.TableID, bookingDate)
 	if !isAvailable {
 		return errors.New("table not available for booking")
 	}
@@ -60,7 +60,7 @@ func (u *usecaseCreateBooking) Perform(ctx context.Context, input CreateBookingI
 		Date:         bookingDate,
 		TableID:      input.TableID,
 	})
-	
+
 	if err != nil {
 		return err
 	}
