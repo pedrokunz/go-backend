@@ -37,7 +37,7 @@ func (u *usecaseCreateBooking) Perform(ctx context.Context, input CreateBookingI
 		return errors.New("can't create a booking at a past date")
 	}
 
-	bookings, err := u.bookingRepository.GetBookingsByDay(ctx, bookingDate)
+	bookings, err := u.bookingRepository.GetBookingsForDay(ctx, bookingDate)
 	if err != nil {
 		return err
 	}

@@ -51,7 +51,7 @@ func Test_db_Create(t *testing.T) {
 		})
 	}
 
-	bookings, err := mongo.GetBookingsByDay(ctx, time.Now())
+	bookings, err := mongo.GetBookingsForDay(ctx, time.Now())
 	if err != nil {
 		t.Errorf("db.GetBookingsByDay() error = %v", err)
 	} else {

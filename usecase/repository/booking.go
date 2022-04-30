@@ -10,7 +10,7 @@ import (
 type CreateBooking interface {
 	Create(ctx context.Context, input *restaurant.Booking) error
 
-	GetBookingsByDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
+	GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
 }
 
 type ListBooking interface {

@@ -67,17 +67,17 @@ func (d *db) Create(ctx context.Context, booking *restaurant.Booking) error {
 	return nil
 }
 
-func (d *db) GetBookingsByDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
-	todayFirstMoment := helper.RemoveTimeFromDate(bookingDate)
-	todayLastMoment := helper.SetDateToLastMomentOfTheDay(bookingDate)
+func (d *db) GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
+	firstMomentOfDay := helper.RemoveTimeFromDate(bookingDate)
+	lastMomentOfDay := helper.SetDateToLastMomentOfTheDay(bookingDate)
 
 	result, err := d.client.
 		Database(d.database).
 		Collection(d.collection).
 		Find(ctx, bson.M{
 			"date": bson.M{
-				"$gte": primitive.NewDateTimeFromTime(todayFirstMoment),
-				"$lte": primitive.NewDateTimeFromTime(todayLastMoment),
+				"$gte": primitive.NewDateTimeFromTime(firstMomentOfDay),
+				"$lte": primitive.NewDateTimeFromTime(lastMomentOfDay),
 			},
 		})
 	if err != nil {

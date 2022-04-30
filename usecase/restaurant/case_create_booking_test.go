@@ -107,7 +107,7 @@ func TestCreateBooking(t *testing.T) {
 
 	ctx := context.Background()
 	bookingMock := restaurantMockRepository.New()
-	createValidBookings(ctx, bookingMock, saturdayAfternoon)
+	createValidBookings(t, ctx, bookingMock, saturdayAfternoon)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := restaurantUsecase.NewCreateBooking(bookingMock)
@@ -119,28 +119,33 @@ func TestCreateBooking(t *testing.T) {
 	}
 }
 
-func createValidBookings(ctx context.Context, mock *restaurantMockRepository.Mock, date time.Time) {
-	booking := &restaurantEntity.Booking{
+func createValidBookings(t *testing.T, ctx context.Context, mock *restaurantMockRepository.Mock, date time.Time) {
+	booking1 := restaurantEntity.Booking{
 		Username:     "user_test",
 		Date:         date,
 		CustomerName: "customer_test",
 		TableID:      1,
 	}
-	
-	err := mock.Create(ctx, booking)
+
+	err := mock.Create(ctx, &booking1)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-	
-	booking.Date = date.Add(2 * time.Hour)
-	mock.Create(ctx, booking)
-	booking.Date = date.Add(4 * time.Hour)
-	mock.Create(ctx, booking)
 
+	booking2 := booking1
+	booking2.Date = date.Add(2 * time.Hour)
+	mock.Create(ctx, &booking2)
 
-	booking.TableID = 2
-	mock.Create(ctx, booking)
+	booking3 := booking1
+	booking3.Date = date.Add(4 * time.Hour)
+	mock.Create(ctx, &booking3)
 
-	booking.Date = date.Add(2 * time.Hour)
-	mock.Create(ctx, booking)
+	booking4 := booking1
+	booking4.TableID = 2
+	mock.Create(ctx, &booking4)
+
+	booking5 := booking1
+	booking5.TableID = 2
+	booking5.Date = date.Add(2 * time.Hour)
+	mock.Create(ctx, &booking5)
 }
