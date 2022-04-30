@@ -14,5 +14,5 @@ type CreateBooking interface {
 }
 
 type ListBooking interface {
-	GetBookingsByDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
+	GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
 }

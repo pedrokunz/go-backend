@@ -102,3 +102,37 @@ func (d *db) GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]*r
 
 	return bookings, nil
 }
+
+func (d *db) GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
+	firstMomentOfDay := helper.RemoveTimeFromDate(bookingDate)
+
+	result, err := d.client.
+		Database(d.database).
+		Collection(d.collection).
+		Find(ctx, bson.M{
+			"date": bson.M{
+				"$gte": primitive.NewDateTimeFromTime(firstMomentOfDay),
+			},
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	var bookings []*restaurant.Booking
+	for result.Next(ctx) {
+		var b booking
+		err := result.Decode(&b)
+		if err != nil {
+			return nil, err
+		}
+
+		bookings = append(bookings, &restaurant.Booking{
+			Username:     b.Username,
+			CustomerName: b.CustomerName,
+			Date:         b.Date,
+			TableID:      b.TableID,
+		})
+	}
+
+	return bookings, nil
+}

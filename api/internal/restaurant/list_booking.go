@@ -11,11 +11,7 @@ import (
 func HandleListBooking(r *gin.RouterGroup, repo repository.ListBooking) {
 	listBooking := restaurantUseCase.NewListBooking(repo)
 	r.GET("/booking", func(c *gin.Context) {
-		listBookingInput := restaurantUseCase.ListBookingInput{
-			Date: c.Query("date"),
-		}
-
-		results, err := listBooking.Perform(c, listBookingInput)
+		results, err := listBooking.Perform(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),

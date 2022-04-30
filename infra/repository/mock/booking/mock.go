@@ -9,6 +9,8 @@ import (
 
 type Mock struct {
 	bookings []*restaurant.Booking
+
+	GetBookingsFromDayFunc func(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
 }
 
 func New() *Mock {
@@ -28,6 +30,23 @@ func (m *Mock) GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]
 		if booking.Date.Year() == bookingDate.Year() &&
 			booking.Date.Month() == bookingDate.Month() &&
 			booking.Date.Day() == bookingDate.Day() {
+			results = append(results, m.bookings[i])
+		}
+	}
+
+	return results, nil
+}
+
+func (m *Mock) GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
+	if m.GetBookingsFromDayFunc != nil {
+		return m.GetBookingsFromDayFunc(ctx, bookingDate)
+	}
+	
+	results := make([]*restaurant.Booking, 0)
+	for i, booking := range m.bookings {
+		if booking.Date.Year() == bookingDate.Year() &&
+			booking.Date.Month() == bookingDate.Month() &&
+			booking.Date.Day() >= bookingDate.Day() {
 			results = append(results, m.bookings[i])
 		}
 	}
