@@ -3,13 +3,13 @@ package restaurant
 import "time"
 
 type Booking struct {
+	ID           string
 	Username     string
 	CustomerName string
 	Date         time.Time
 	TableID      int
+	Status       string
 }
-
-type Bookings []*Booking
 
 func BookingIsAvailable(bookings []*Booking, tableID int, date time.Time) bool {
 	if len(bookings) == 0 {

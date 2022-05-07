@@ -12,6 +12,7 @@ import (
 type ApiDependencies struct {
 	ListBookingRepo   repository.ListBooking
 	CreateBookingRepo repository.CreateBooking
+	DeleteBookingRepo repository.DeleteBooking
 }
 
 func ListenAndServe(dependencies ApiDependencies) {
@@ -21,6 +22,7 @@ func ListenAndServe(dependencies ApiDependencies) {
 
 	restaurant.HandleCreateBooking(r, dependencies.CreateBookingRepo)
 	restaurant.HandleListBooking(r, dependencies.ListBookingRepo)
+	restaurant.HandleDeleteBooking(r, dependencies.DeleteBookingRepo)
 
 	h.Run(":" + os.Getenv("HTTP_PORT"))
 }

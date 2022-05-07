@@ -14,5 +14,6 @@ func main() {
 	api.ListenAndServe(api.ApiDependencies{
 		ListBookingRepo:   mongoRepo,
 		CreateBookingRepo: mongoRepo,
+		DeleteBookingRepo: mongoRepo,
 	})
 }

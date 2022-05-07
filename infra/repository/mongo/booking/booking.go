@@ -33,10 +33,12 @@ func New() (*db, error) {
 }
 
 type booking struct {
-	Username     string    `bson:"username"`
-	CustomerName string    `bson:"customer_name"`
-	Date         time.Time `bson:"date"`
-	TableID      int       `bson:"table_id"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	Username     string             `bson:"username"`
+	CustomerName string             `bson:"customer_name"`
+	Date         time.Time          `bson:"date"`
+	TableID      int                `bson:"table_id"`
+	Status       string             `bson:"status"`
 }
 
 func toBookingMongo(b *restaurant.Booking) (*primitive.D, error) {
@@ -79,6 +81,9 @@ func (d *db) GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]*r
 				"$gte": primitive.NewDateTimeFromTime(firstMomentOfDay),
 				"$lte": primitive.NewDateTimeFromTime(lastMomentOfDay),
 			},
+			"status": bson.M{
+				"$ne": "deleted",
+			},
 		})
 	if err != nil {
 		return nil, err
@@ -93,10 +98,12 @@ func (d *db) GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]*r
 		}
 
 		bookings = append(bookings, &restaurant.Booking{
+			ID:           b.ID.Hex(),
 			Username:     b.Username,
 			CustomerName: b.CustomerName,
 			Date:         b.Date,
 			TableID:      b.TableID,
+			Status:       b.Status,
 		})
 	}
 
@@ -113,6 +120,9 @@ func (d *db) GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([]*
 			"date": bson.M{
 				"$gte": primitive.NewDateTimeFromTime(firstMomentOfDay),
 			},
+			"status": bson.M{
+				"$ne": "deleted",
+			},
 		})
 	if err != nil {
 		return nil, err
@@ -127,12 +137,38 @@ func (d *db) GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([]*
 		}
 
 		bookings = append(bookings, &restaurant.Booking{
+			ID:           b.ID.Hex(),
 			Username:     b.Username,
 			CustomerName: b.CustomerName,
 			Date:         b.Date,
 			TableID:      b.TableID,
+			Status:       b.Status,
 		})
 	}
 
 	return bookings, nil
+}
+
+func (d *db) Delete(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = d.client.
+		Database(d.database).
+		Collection(d.collection).
+		UpdateByID(ctx, oid, bson.M{
+			"$set": bson.M{
+				"status": "deleted",
+			},
+		})
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Deleted a single document: %s", oid)
+
+	return nil
 }

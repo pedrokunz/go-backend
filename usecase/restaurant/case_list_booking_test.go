@@ -30,10 +30,16 @@ func TestListBooking(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := restaurantUsecase.NewListBooking(bookingMock)
-			_, err := u.Perform(ctx)
+			results, err := u.Perform(ctx)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("usecaseListBooking.Perform() error = %v, wantErr %v", err, tt.wantErr)
 				return
+			}
+
+			for _, output := range results {
+				if output.ID == "" {
+					t.Errorf("empty id")
+				}
 			}
 		})
 	}

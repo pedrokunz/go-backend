@@ -16,3 +16,7 @@ type CreateBooking interface {
 type ListBooking interface {
 	GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
 }
+
+type DeleteBooking interface {
+	Delete(ctx context.Context, id string) error
+}

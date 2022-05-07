@@ -2,35 +2,39 @@ package booking
 
 import (
 	"context"
+	"errors"
+	"strconv"
 	"time"
 
 	"github.com/pedrokunz/go_backend/entity/restaurant"
 )
 
 type Mock struct {
-	bookings []*restaurant.Booking
+	Bookings []*restaurant.Booking
 
 	GetBookingsFromDayFunc func(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error)
 }
 
 func New() *Mock {
 	return &Mock{
-		bookings: make([]*restaurant.Booking, 0),
+		Bookings: make([]*restaurant.Booking, 0),
 	}
 }
 
 func (m *Mock) Create(ctx context.Context, booking *restaurant.Booking) error {
-	m.bookings = append(m.bookings, booking)
+	booking.ID = strconv.Itoa(len(m.Bookings) + 1)
+	m.Bookings = append(m.Bookings, booking)
 	return nil
 }
 
 func (m *Mock) GetBookingsForDay(ctx context.Context, bookingDate time.Time) ([]*restaurant.Booking, error) {
 	results := make([]*restaurant.Booking, 0)
-	for i, booking := range m.bookings {
-		if booking.Date.Year() == bookingDate.Year() &&
+	for i, booking := range m.Bookings {
+		if booking.Status != "deleted" &&
+			booking.Date.Year() == bookingDate.Year() &&
 			booking.Date.Month() == bookingDate.Month() &&
 			booking.Date.Day() == bookingDate.Day() {
-			results = append(results, m.bookings[i])
+			results = append(results, m.Bookings[i])
 		}
 	}
 
@@ -41,15 +45,27 @@ func (m *Mock) GetBookingsFromDay(ctx context.Context, bookingDate time.Time) ([
 	if m.GetBookingsFromDayFunc != nil {
 		return m.GetBookingsFromDayFunc(ctx, bookingDate)
 	}
-	
+
 	results := make([]*restaurant.Booking, 0)
-	for i, booking := range m.bookings {
-		if booking.Date.Year() == bookingDate.Year() &&
+	for i, booking := range m.Bookings {
+		if booking.Status != "deleted" &&
+			booking.Date.Year() == bookingDate.Year() &&
 			booking.Date.Month() == bookingDate.Month() &&
 			booking.Date.Day() >= bookingDate.Day() {
-			results = append(results, m.bookings[i])
+			results = append(results, m.Bookings[i])
 		}
 	}
 
 	return results, nil
+}
+
+func (m *Mock) Delete(ctx context.Context, id string) error {
+	for i, booking := range m.Bookings {
+		if booking.ID == id {
+			m.Bookings[i].Status = "deleted"
+			return nil
+		}
+	}
+
+	return errors.New("booking not found")
 }

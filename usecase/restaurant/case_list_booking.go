@@ -12,10 +12,12 @@ type usecaseListBooking struct {
 }
 
 type ListBookingOutput struct {
+	ID           string `json:"id"`
 	Username     string `json:"username"`
 	CustomerName string `json:"customer_name"`
 	BookingDate  string `json:"booking_date"`
 	TableID      int    `json:"table_id"`
+	Status       string `json:"status"`
 }
 
 func NewListBooking(bookingRepository repository.ListBooking) *usecaseListBooking {
@@ -33,10 +35,12 @@ func (u *usecaseListBooking) Perform(ctx context.Context) ([]ListBookingOutput, 
 	bookingsOutput := make([]ListBookingOutput, 0)
 	for _, booking := range bookings {
 		bookingsOutput = append(bookingsOutput, ListBookingOutput{
+			ID:           booking.ID,
 			Username:     booking.Username,
 			CustomerName: booking.CustomerName,
 			BookingDate:  booking.Date.Format(time.RFC3339),
 			TableID:      booking.TableID,
+			Status:       booking.Status,
 		})
 	}
 
